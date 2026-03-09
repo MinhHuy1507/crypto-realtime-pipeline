@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: pip install ruff
+      - run: ruff check .
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install test dependencies
+        run: |
+          pip install pytest requests
+      - run: pytest tests/ producers/tests/ -v
+
+  dbt-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dbt
+        run: pip install dbt-postgres==1.10.0
+      - name: dbt deps & compile (syntax check only)
+        working-directory: dbt
+        run: |
+          cp profiles.yml.example profiles.yml
+          dbt deps
+          dbt compile
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Airflow image
+        run: docker build -f docker/Dockerfile.airflow -t test-airflow .
+      - name: Build Spark image
+        run: docker build -f docker/Dockerfile.spark -t test-spark .
