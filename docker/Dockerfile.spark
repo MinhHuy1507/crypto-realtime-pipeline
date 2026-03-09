@@ -1,0 +1,19 @@
+FROM bitnamilegacy/spark:3.5.0-debian-12-r17
+
+USER root
+
+# 1. Install curl & pip dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl python3-pip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 2. Install JMX Prometheus Java Agent for monitoring
+RUN curl -sSL https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.19.0/jmx_prometheus_javaagent-0.19.0.jar \
+    -o /opt/jmx_prometheus_javaagent-0.19.0.jar
+
+# 3. Install Python dependencies
+COPY docker/requirements_spark.txt /tmp/requirements_spark.txt
+RUN pip install --no-cache-dir --break-system-packages -r /tmp/requirements_spark.txt \
+    && rm /tmp/requirements_spark.txt
+
+USER 1001

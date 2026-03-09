@@ -1,0 +1,56 @@
+FROM apache/airflow:3.0.6-python3.11
+
+USER root
+
+# 1. Install tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    procps \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 2. Install OpenJDK 17.0.10
+ENV JAVA_HOME="/opt/java/openjdk"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+RUN mkdir -p ${JAVA_HOME} && \
+    curl -sSL "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.10%2B7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.10_7.tar.gz" \
+    -o openjdk.tar.gz && \
+    tar -xzf openjdk.tar.gz -C ${JAVA_HOME} --strip-components=1 && \
+    rm openjdk.tar.gz
+
+# 3. Install Spark
+ENV SPARK_HOME="/opt/spark"
+RUN mkdir -p ${SPARK_HOME} && \
+    curl -sSL "https://archive.apache.org/dist/spark/spark-3.5.0/spark-3.5.0-bin-hadoop3.tgz" \
+    -o spark.tgz && \
+    tar -xzf spark.tgz -C ${SPARK_HOME} --strip-components=1 && \
+    rm spark.tgz
+
+ENV PATH="${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${PATH}"
+
+# 4. Install Spark Kafka packages and JDBC drivers
+RUN curl -sSL https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.0/spark-sql-kafka-0-10_2.12-3.5.0.jar -o $SPARK_HOME/jars/spark-sql-kafka-0-10_2.12-3.5.0.jar && \
+    curl -sSL https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.4.1/kafka-clients-3.4.1.jar -o $SPARK_HOME/jars/kafka-clients-3.4.1.jar && \
+    curl -sSL https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.11.1/commons-pool2-2.11.1.jar -o $SPARK_HOME/jars/commons-pool2-2.11.1.jar && \
+    curl -sSL https://repo1.maven.org/maven2/org/apache/spark/spark-token-provider-kafka-0-10_2.12/3.5.0/spark-token-provider-kafka-0-10_2.12-3.5.0.jar -o $SPARK_HOME/jars/spark-token-provider-kafka-0-10_2.12-3.5.0.jar && \
+    curl -sSL https://repo1.maven.org/maven2/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar -o $SPARK_HOME/jars/postgresql-42.6.0.jar && \
+    curl -sSL https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar -o $SPARK_HOME/jars/hadoop-aws-3.3.4.jar && \
+    curl -sSL https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar -o $SPARK_HOME/jars/aws-java-sdk-bundle-1.12.262.jar && \
+    curl -sSL https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.12/3.5.0/spark-avro_2.12-3.5.0.jar -o $SPARK_HOME/jars/spark-avro_2.12-3.5.0.jar
+
+# 5. Install JMX Prometheus Java Agent for Spark monitoring
+RUN curl -sSL https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.19.0/jmx_prometheus_javaagent-0.19.0.jar \
+    -o /opt/jmx_prometheus_javaagent-0.19.0.jar
+
+# 6. Install Python dependencies
+USER airflow
+COPY docker/requirements_airflow.txt .
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements_airflow.txt
+
+# 7. Pre-install dbt packages at build time (so install_deps can be False at runtime)
+COPY --chown=airflow:airflow dbt /opt/airflow/dbt
+RUN dbt deps --project-dir /opt/airflow/dbt
+
+# 8. Setup PYTHONPATH
+ENV PYTHONPATH="${PYTHONPATH}:/opt/airflow"
