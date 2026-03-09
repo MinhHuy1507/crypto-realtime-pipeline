@@ -1,0 +1,17 @@
+[project]
+name = "crypto-realtime-pipeline"
+version = "1.0.0"
+description = "Real-time crypto trading analytics pipeline (Binance → Kafka → Spark → PostgreSQL/MinIO → dbt → Grafana)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "producers/tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
