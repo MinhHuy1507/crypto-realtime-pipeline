@@ -17,6 +17,8 @@
 
 [![Demo Dự án](https://img.youtube.com/vi/GQ4aimMpMro/0.jpg)](https://www.youtube.com/watch?v=GQ4aimMpMro)
 
+This is a video demo of the project in action, just click the picture above to watch.
+
 </div>
 
 ---
