@@ -1,0 +1,57 @@
+# 1. Security & Environment Variables
+.env
+.env.*
+
+# 2. Data & Docker Volumes
+data/postgres/
+data/minio/
+data/example/
+data/checkpoint/
+data/datalake/
+
+# 3. Python & Virtual Environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# 4. Airflow Artifacts
+logs/
+config/airflow.cfg
+plugins/
+airflow-webserver.pid
+airflow.db
+unittests.cfg
+
+# 5. Spark Artifacts
+metastore_db/
+derby.log
+checkpoint/
+
+# 6. dbt Artifacts
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/dbt_modules/
+dbt/dbt_internal_packages/
+dbt/profiles.yml
+dbt/.user.yml
+
+# 7. IDE & OS Files
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 8. Exceptions
+!.env.example
+!spark_jobs/config
+!producers/config
+
+# 9. Other Files
+temp/
+note/
