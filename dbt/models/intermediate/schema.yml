@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: int_crypto__continuous_candles
+    description: "Fill missing time intervals in candle data for continuous analysis."
+    columns:
+      - name: symbol
+        description: "Trading symbol for the candle data."
+        tests:
+          - not_null
+      - name: window_start
+        description: "Timestamp when the candle opened."
+        tests:
+          - not_null
+      - name: window_end
+        description: "Timestamp when the candle closed."
+        tests:
+          - not_null
+      - name: close_price
+        description: "Closing price of the candle."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+      - name: trade_volume
+        description: "Trading volume during the candle period."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+  - name: int_crypto__technical_indicators
+    description: "Table calculating technical indicators (RSI, SMA) based on continuous candle data."
+    columns:
+      - name: candle_id
+        description: "Primary key (Derived from continuous_candles table)."
+        tests:
+          - unique
+          - not_null
+
+      - name: rsi_14
+        description: "Relative Strength Index (14 periods)."
+        tests:
+          # Test logic: RSI must be between 0 and 100
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND rsi_14 <= 100"
+      - name: sma_5
+        description: "Simple Moving Average over 5 periods."
+        tests:
+          - not_null
+
+  - name: int_crypto__daily_candles
+    description: "Aggregated daily candle data from continuous candles."
+    columns:
+      - name: daily_candle_id
+        description: "Primary key for daily candle data."
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        description: "Trading symbol for the candle data."
+        tests:
+          - not_null
+      - name: trade_date
+        description: "Date of the trading day."
+        tests:
+          - not_null
+      - name: daily_open
+        description: "Opening price of the day."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: daily_close
+        description: "Closing price of the day."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: intraday_volatility
+        description: "Intraday volatility calculated as (High - Low) / Low."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"

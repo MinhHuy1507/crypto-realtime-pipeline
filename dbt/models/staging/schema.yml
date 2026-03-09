@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: stg_binance__candles
+    description: "Staging model for raw candles log data."
+    columns:
+      - name: candle_id
+        description: "Unique identifier for each candle log entry."
+        tests:
+          - unique:
+              severity: error
+          - not_null
+      - name: symbol
+        description: "Trading symbol for the candle data."
+        tests:
+          - not_null
+      - name: start_time
+        description: "Timestamp when the candle opened."
+        tests:
+          - not_null
+      - name: end_time
+        description: "Timestamp when the candle closed."
+        tests:
+          - not_null
+      - name: close_price
+        description: "Closing price of the candle."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+      - name: trade_volume
+        description: "Trading volume during the candle period."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"

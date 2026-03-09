@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: dim_crypto__symbols
+    description: "Dimension table for cryptocurrency symbols."
+    columns:
+      - name: symbol_id
+        tests:
+          - unique
+          - not_null
+      - name: symbol_code
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_crypto__technical_analysis
+    description: "Consolidated technical analysis table (One Big Table), serving the Trading Dashboard."
+    tags: ["bi_exposure"]
+    columns:
+      - name: candle_id
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_crypto__symbols')
+              field: symbol_code
+      # Business Logic Test
+      - name: signal_rsi
+        description: "Overbought/oversold status based on RSI."
+        tests:
+          - accepted_values:
+              values: ['oversold', 'overbought', 'neutral']
+      - name: trend_direction
+        description: "Short-term trend based on SMA crossover."
+        tests:
+          - accepted_values:
+              values: ['uptrend', 'downtrend', 'neutral']
+      - name: trade_recommendation
+        description: "Trading recommendation based on combined strategy."
+        tests:
+          - accepted_values:
+              values: ['strong_buy', 'strong_sell', 'hold']
+
+  - name: mart_crypto__periodic_performance
+    description: "Investment performance analysis table (Return & Risk) by period."
+    tags: ["bi_exposure"]
+    columns:
+      - name: daily_candle_id
+        tests:
+          - unique
+          - not_null
+      - name: symbol
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_crypto__symbols')
+              field: symbol_code
+      - name: trade_date
+        tests:
+          - not_null
+      - name: return_7d
+        description: "Growth percentage compared to 7 days ago."
+      - name: volatility_30d
+        description: "30-day price standard deviation (Risk Indicator)."
+    
+  - name: mart_market__market_breadth
+    description: "Market health overview (Market Breadth & Sentiment)."
+    columns:
+      - name: window_start
+        tests:
+          - unique
+          - not_null
+      - name: btc_volume_dominance_pct
+        description: "BTC Volume dominance percentage relative to the total market."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND btc_volume_dominance_pct <= 1"
+      - name: market_breadth_pct
+        description: "% of Coins currently above SMA 20."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0 AND market_breadth_pct <= 1"
+      - name: avg_market_rsi
+        description: "Average RSI of the entire market."

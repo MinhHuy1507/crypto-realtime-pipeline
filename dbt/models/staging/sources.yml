@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: raw_layer
+    database: airflow
+    schema: raw
+    tables:
+      - name: candles_log
+        description: "Raw candles log data ingested from external sources."

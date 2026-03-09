@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "namespace": "com.crypto.trade",
+  "name": "TradeEvent",
+  "doc": "Schema for Crypto trade data from Binance",
+  "fields": [
+    {
+      "name": "symbol",
+      "type": "string",
+      "doc": "Currency pair symbol (e.g., BTCUSDT)"
+    },
+    {
+      "name": "price",
+      "type": "double",
+      "doc": "Trade price"
+    },
+    {
+      "name": "quantity",
+      "type": "double",
+      "doc": "Quantity traded"
+    },
+    {
+      "name": "event_time",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Trade time from exchange"
+    },
+    {
+      "name": "processing_time",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Ingestion (Processing) time at server"
+    }
+  ]
+}

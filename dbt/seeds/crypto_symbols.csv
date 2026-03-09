@@ -1,0 +1,11 @@
+symbol_code,base_asset_name,quote_asset,exchange,sector
+BTCUSDT,Bitcoin,USDT,Binance,Layer 1
+ETHUSDT,Ethereum,USDT,Binance,Layer 1
+BNBUSDT,BNB,USDT,Binance,Exchange Token
+SOLUSDT,Solana,USDT,Binance,Layer 1
+ADAUSDT,Cardano,USDT,Binance,Layer 1
+XRPUSDT,XRP,USDT,Binance,Payment
+DOGEUSDT,Dogecoin,USDT,Binance,Meme
+DOTUSDT,Polkadot,USDT,Binance,Layer 0
+AVAXUSDT,Avalanche,USDT,Binance,Layer 1
+POLUSDT,Polygon,USDT,Binance,Layer 2
