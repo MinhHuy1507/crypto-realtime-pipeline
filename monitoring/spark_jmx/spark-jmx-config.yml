@@ -1,0 +1,44 @@
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+rules:
+  # 1. Input Rate 
+  - pattern: metrics<name=spark\.driver\.spark\.streaming\.([^.]+)\.inputRate-total.*><>Value
+    name: spark_streaming_input_rate
+    type: GAUGE
+    labels:
+      run_id: "$1"
+
+  # 2. Processing Rate
+  - pattern: metrics<name=spark\.driver\.spark\.streaming\.([^.]+)\.processingRate-total.*><>Value
+    name: spark_streaming_processing_rate
+    type: GAUGE
+    labels:
+      run_id: "$1"
+
+  # 3. Latency
+  - pattern: metrics<name=spark\.driver\.spark\.streaming\.([^.]+)\.latency.*><>Value
+    name: spark_streaming_latency
+    type: GAUGE
+    labels:
+      run_id: "$1"
+
+  # 4. State Rows (Memory Leak Detection)
+  - pattern: metrics<name=spark\.driver\.spark\.streaming\.([^.]+)\.states-rowsTotal.*><>Value
+    name: spark_streaming_state_rows_total
+    type: GAUGE
+    labels:
+      run_id: "$1"
+
+  # 5. State Bytes
+  - pattern: metrics<name=spark\.driver\.spark\.streaming\.([^.]+)\.states-usedBytes.*><>Value
+    name: spark_streaming_state_used_bytes
+    type: GAUGE
+    labels:
+      run_id: "$1"
+
+  # 6. Catch-all (For any other metrics under spark.streaming)
+  - pattern: metrics<name=spark\.driver\.spark\.streaming\.([^.]+)\.([^,]+).*><>Value
+    name: spark_streaming_other
+    labels:
+      run_id: "$1"
+      metric: "$2"

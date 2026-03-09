@@ -1,0 +1,159 @@
+apiVersion: 1
+
+# 1 Contact Points (Place to send alerts to)
+contactPoints:
+  - orgId: 1
+    name: "${GF_SMTP_FROM_ADDRESS}"
+    receivers:
+      - uid: "email-receiver-1"
+        type: email
+        settings:
+          addresses: "${GF_SMTP_FROM_ADDRESS}"
+          singleEmail: true
+
+# 2. Policies Definition (When to send alerts)
+policies:
+  - orgId: 1
+    receiver: "${GF_SMTP_FROM_ADDRESS}"
+    group_by: ['grafana_folder', 'alertname']
+    repeat_interval: 4h
+
+# 3. Alerting Rules (Define alert conditions)
+groups:
+  - orgId: 1
+    name: "Production Rules"
+    folder: "Production Alerts"
+    interval: 1m
+    rules:
+      # --- RULE 1: SPARK JOB DEAD ---
+      - uid: "spark_job_dead_alert"
+        title: "Critical - Spark Job Stopped"
+        condition: "C"
+        data:
+          - refId: "A"
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: "prometheus_main_ds"
+            model:
+              editorMode: "code"
+              # Keep the logic of converting Null to 0 to catch Job stopped errors
+              expr: "sum(spark_streaming_input_rate) or vector(0)"
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: "A"
+          - refId: "B"
+            datasourceUid: "__expr__"
+            model:
+              refId: "B"
+              type: "reduce"
+              expression: "A"
+              reducer: "last"
+              settings:
+                mode: "dropNN"
+          - refId: "C"
+            datasourceUid: "__expr__"
+            model:
+              refId: "C"
+              type: "threshold"
+              expression: "B"
+              conditions:
+                - evaluator:
+                    params: [1]
+                    type: "lt"
+        noDataState: "OK"
+        execErrState: "OK"
+        for: "5m"
+        annotations:
+          summary: "Spark Job has stopped"
+          description: "Input rate is 0 (or null) for the last 5 minutes."
+        labels:
+          severity: "critical"
+
+      # --- RULE 2: HIGH LATENCY (WARNING) ---
+      - uid: "spark_high_latency_alert"
+        title: "Warning - Spark Latency High"
+        condition: "C"
+        data:
+          - refId: "A"
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: "prometheus_main_ds"
+            model:
+              editorMode: "code"
+              expr: "avg(spark_streaming_latency)"
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: "A"
+          - refId: "B"
+            datasourceUid: "__expr__"
+            model:
+              refId: "B"
+              type: "reduce"
+              expression: "A"
+              reducer: "last"
+              settings:
+                mode: "dropNN"
+          - refId: "C"
+            datasourceUid: "__expr__"
+            model:
+              refId: "C"
+              type: "threshold"
+              expression: "B"
+              conditions:
+                - evaluator:
+                    params: [10000]
+                    type: "gt"
+        noDataState: "OK"
+        execErrState: "OK"
+        for: "2m"
+        annotations:
+          summary: "Spark Job Latency High"
+          description: "Latency > 10s"
+        labels:
+          severity: "warning"
+
+      # --- RULE 3: JVM MEMORY (WARNING) ---
+      - uid: "spark_jvm_memory_alert"
+        title: "Warning - JVM Memory Critical"
+        condition: "C"
+        data:
+          - refId: "A"
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: "prometheus_main_ds"
+            model:
+              editorMode: "code"
+              expr: "(sum(jvm_memory_bytes_used{area='heap'}) / sum(jvm_memory_bytes_max{area='heap'})) * 100"
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: "A"
+          - refId: "B"
+            datasourceUid: "__expr__"
+            model:
+              refId: "B"
+              type: "reduce"
+              expression: "A"
+              reducer: "last"
+              settings:
+                mode: "dropNN"
+          - refId: "C"
+            datasourceUid: "__expr__"
+            model:
+              refId: "C"
+              type: "threshold"
+              expression: "B"
+              conditions:
+                - evaluator:
+                    params: [85]
+                    type: "gt"
+        noDataState: "OK"
+        execErrState: "OK"
+        for: "5m"
+        annotations:
+          summary: "JVM Memory High"
+          description: "Heap usage > 85%"
+        labels:
+          severity: "warning"

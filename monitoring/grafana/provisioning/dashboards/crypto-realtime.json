@@ -1,0 +1,915 @@
+﻿{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "stat",
+            "title": "Tâm Lý Thị Trường (Sentiment)",
+            "gridPos": {
+                "h": 8,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "id": 8,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [],
+                    "fields": "/.*/",
+                    "values": true
+                },
+                "textMode": "value",
+                "wideLayout": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [
+                        {
+                            "type": "value",
+                            "options": {
+                                "Extreme Fear": {
+                                    "color": "dark-green",
+                                    "index": 4,
+                                    "text": "Extreme Fear"
+                                },
+                                "Fear": {
+                                    "color": "light-green",
+                                    "index": 3,
+                                    "text": "Fear"
+                                },
+                                "Neutral": {
+                                    "color": "text",
+                                    "index": 2,
+                                    "text": "Neutral"
+                                },
+                                "Greed": {
+                                    "color": "yellow",
+                                    "index": 1,
+                                    "text": "Greed"
+                                },
+                                "Extreme Greed": {
+                                    "color": "dark-red",
+                                    "index": 0,
+                                    "text": "Extreme Greed"
+                                }
+                            }
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT market_sentiment_state FROM gold.mart_market__market_breadth ORDER BY window_start DESC LIMIT 1",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "gauge",
+            "title": "Tỷ Trọng Bitcoin (BTC Dominance)",
+            "gridPos": {
+                "h": 8,
+                "w": 4,
+                "x": 4,
+                "y": 0
+            },
+            "id": 7,
+            "options": {
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^BTC Dom %$/",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "percentage",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "orange",
+                                "value": 40
+                            },
+                            {
+                                "color": "red",
+                                "value": 60
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT window_start AS time, btc_volume_dominance_pct * 100 AS \"BTC Dom %\" FROM gold.mart_market__market_breadth WHERE $__timeFilter(window_start) ORDER BY window_start ASC",
+                    "refId": "A"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "filterFieldsByName",
+                    "options": {
+                        "include": {
+                            "names": [
+                                "BTC Dom %",
+                                "time"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "gauge",
+            "title": "Độ Rộng Thị Trường (Market Breadth)",
+            "gridPos": {
+                "h": 8,
+                "w": 4,
+                "x": 8,
+                "y": 0
+            },
+            "id": 5,
+            "options": {
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "fieldMinMax": false,
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "transparent",
+                                "value": 0
+                            },
+                            {
+                                "color": "dark-red",
+                                "value": 0
+                            },
+                            {
+                                "color": "dark-yellow",
+                                "value": 20
+                            },
+                            {
+                                "color": "dark-green",
+                                "value": 80
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT window_start AS time, market_breadth_pct * 100 AS breadth FROM gold.mart_market__market_breadth WHERE $__timeFilter(window_start) ORDER BY window_start ASC",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "barchart",
+            "title": "Tổng Thanh Khoản (Total Volume)",
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            },
+            "id": 9,
+            "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                },
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "fillOpacity": 80,
+                        "gradientMode": "opacity",
+                        "lineWidth": 0,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT window_start AS time, total_market_volume FROM gold.mart_market__market_breadth WHERE $__timeFilter(window_start) ORDER BY window_start ASC",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "stat",
+            "title": "Độ Trễ Dữ Liệu (Data Lag)",
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 18,
+                "y": 0
+            },
+            "id": 100,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 60
+                            },
+                            {
+                                "color": "red",
+                                "value": 300
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT EXTRACT(EPOCH FROM (NOW() - MAX(window_start))) AS lag_seconds FROM gold.mart_crypto__technical_analysis WHERE symbol = '${symbol_code}'",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "stat",
+            "title": "Độ Đầy Đủ (1h Count)",
+            "description": "Number of candles in the last 1h. Target = 60.",
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 21,
+                "y": 0
+            },
+            "id": 101,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 58
+                            }
+                        ]
+                    },
+                    "max": 60
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT COUNT(*) as candle_count FROM gold.mart_crypto__technical_analysis WHERE symbol = '${symbol_code}' AND window_start > NOW() - INTERVAL '1 hour'",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "candlestick",
+            "title": "Biểu Đồ Giá & Xu Hướng (Price Action)",
+            "gridPos": {
+                "h": 10,
+                "w": 14,
+                "x": 0,
+                "y": 8
+            },
+            "id": 2,
+            "options": {
+                "candleStyle": "candles",
+                "colorStrategy": "open-close",
+                "colors": {
+                    "down": "red",
+                    "flat": "gray",
+                    "up": "green"
+                },
+                "mode": "candles+volume",
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "sma_5"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "yellow",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "sma_20"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "purple",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT window_start AS time, open_price AS open, highest_price AS high, lowest_price AS low, close_price AS close, trade_volume AS volume, sma_5, sma_20 FROM gold.mart_crypto__technical_analysis WHERE symbol = '${symbol_code}' AND $__timeFilter(window_start) ORDER BY window_start ASC",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "timeseries",
+            "title": "Sức Mạnh Tương Đối (RSI 14)",
+            "gridPos": {
+                "h": 10,
+                "w": 10,
+                "x": 14,
+                "y": 8
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisPlacement": "auto",
+                        "drawStyle": "line",
+                        "thresholdsStyle": {
+                            "mode": "dashed+area"
+                        }
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "text",
+                                "value": 0
+                            },
+                            {
+                                "color": "dark-green",
+                                "value": 30
+                            },
+                            {
+                                "color": "dark-red",
+                                "value": 70
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT window_start AS time, rsi_14 FROM gold.mart_crypto__technical_analysis WHERE symbol = '${symbol_code}' AND $__timeFilter(window_start) ORDER BY window_start ASC",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "table",
+            "title": "Thông tin Coin",
+            "gridPos": {
+                "h": 8,
+                "w": 6,
+                "x": 0,
+                "y": 18
+            },
+            "id": 1,
+            "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto"
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT * FROM raw.crypto_symbols WHERE symbol_code = '$symbol_code'",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "table",
+            "title": "Xếp Hạng Biến Động (Top Movers)",
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 6,
+                "y": 18
+            },
+            "id": 6,
+            "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "cellOptions": {
+                            "type": "color-text"
+                        }
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Weekly Return (%)"
+                        },
+                        "properties": [
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "dark-red",
+                                            "value": -100
+                                        },
+                                        {
+                                            "color": "dark-green",
+                                            "value": 0
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT symbol, return_7d * 100 AS \"Weekly Return (%)\", return_30d * 100 AS \"Monthly Return (%)\", risk_intraday_volatility * 100 AS \"Daily Volatility (%)\" FROM gold.mart_crypto__periodic_performance WHERE trade_date = (SELECT MAX(trade_date) FROM gold.mart_crypto__periodic_performance) ORDER BY return_7d DESC",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "${DS_POSTGRES}"
+            },
+            "type": "table",
+            "title": "Tín Hiệu Giao Dịch (Live Signals)",
+            "gridPos": {
+                "h": 8,
+                "w": 10,
+                "x": 14,
+                "y": 18
+            },
+            "id": 4,
+            "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Action"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "BUY": {
+                                                "color": "green",
+                                                "text": "BUY",
+                                                "index": 0
+                                            },
+                                            "SELL": {
+                                                "color": "red",
+                                                "text": "SELL",
+                                                "index": 1
+                                            },
+                                            "HOLD": {
+                                                "color": "yellow",
+                                                "text": "HOLD",
+                                                "index": 2
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "uid": "${DS_POSTGRES}"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "SELECT window_start AS \"Time\", close_price AS \"Price\", signal_rsi AS \"RSI Signal\", trend_direction AS \"Trend\", trade_recommendation AS \"Action\" FROM gold.mart_crypto__technical_analysis WHERE symbol = '${symbol_code}' ORDER BY window_start DESC LIMIT 10",
+                    "refId": "A"
+                }
+            ]
+        }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [
+        "crypto",
+        "real-time",
+        "production"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {},
+                "hide": 0,
+                "includeAll": false,
+                "label": "Datasource",
+                "multi": false,
+                "name": "DS_POSTGRES",
+                "options": [],
+                "query": "grafana-postgresql-datasource",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+            },
+            {
+                "current": {
+                    "text": "ADAUSDT",
+                    "value": "ADAUSDT"
+                },
+                "datasource": {
+                    "type": "grafana-postgresql-datasource",
+                    "uid": "postgres_main_ds"
+                },
+                "definition": "SELECT DISTINCT symbol_code FROM gold.dim_crypto__symbols ORDER BY symbol_code ASC;",
+                "hide": 0,
+                "includeAll": false,
+                "label": "Coin",
+                "multi": false,
+                "name": "symbol_code",
+                "options": [],
+                "query": "SELECT DISTINCT symbol_code FROM gold.dim_crypto__symbols ORDER BY symbol_code ASC;",
+                "refresh": 2,
+                "regex": "",
+                "sort": 1,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "Crypto Dashboard - Realtime (Ops View)",
+    "uid": "crypto-ops-prod",
+    "version": 1,
+    "weekStart": ""
+}
