@@ -1,0 +1,35 @@
+name: Deploy Crypto Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Triển khai qua SSH Jumpbox
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PRIVATE_VM_IP }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        proxy_host: ${{ secrets.JUMPBOX_HOST }}
+        proxy_username: ${{ secrets.SSH_USERNAME }}
+        proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/crypto-realtime-pipeline
+          git pull origin main
+
+          # Khởi tạo file biến môi trường .env
+          echo "GF_SMTP_PASSWORD=${{ secrets.GF_SMTP_PASSWORD }}" > .env
+          echo "GF_SMTP_FROM_ADDRESS=${{ secrets.GF_SMTP_FROM_ADDRESS }}" >> .env
+          echo "GF_SMTP_USER=${{ secrets.GF_SMTP_USER }}" >> .env
+
+
+          # Chuẩn bị file profile cho dbt
+          cp dbt/profiles.yml.example dbt/profiles.yml
+
+          # Tắt luồng cũ và khởi chạy luồng mới cùng việc rebuild image
+          docker-compose down
+          docker-compose up -d --build
