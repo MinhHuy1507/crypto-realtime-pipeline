@@ -21,7 +21,8 @@ jobs:
           cd ~/crypto-realtime-pipeline
           git pull origin main
 
-          # Khởi tạo file biến môi trường .env
+          cp .env.example .env
+
           echo "GF_SMTP_PASSWORD=${{ secrets.GF_SMTP_PASSWORD }}" > .env
           echo "GF_SMTP_FROM_ADDRESS=${{ secrets.GF_SMTP_FROM_ADDRESS }}" >> .env
           echo "GF_SMTP_USER=${{ secrets.GF_SMTP_USER }}" >> .env

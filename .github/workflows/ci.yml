@@ -40,6 +40,8 @@ jobs:
         run: pip install dbt-postgres==1.8.2
       - name: dbt deps & compile (syntax check only)
         working-directory: dbt
+        env:
+          DBT_ALLOW_EXPERIMENTAL_ADAPTERS: "true"
         run: |
           cp profiles.yml.example profiles.yml
           dbt deps
