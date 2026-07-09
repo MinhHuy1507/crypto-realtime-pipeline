@@ -16,7 +16,8 @@ apache-airflow-providers-apache-spark==5.2.1
 pyspark==3.5.0
 
 # dbt
-dbt-postgres==1.10.0
+dbt-core==1.8.2
+dbt-postgres==1.8.2
 astronomer-cosmos==1.13.1
 
 # postgresql
