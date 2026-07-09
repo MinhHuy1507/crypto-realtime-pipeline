@@ -2,7 +2,7 @@ name: Deploy Crypto Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   deploy:
