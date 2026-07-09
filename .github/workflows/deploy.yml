@@ -20,7 +20,9 @@ jobs:
         script: |
           set -e
           cd ~/crypto-realtime-pipeline
-          
+
+          sudo chown -R $USER:$USER .
+
           git fetch origin
           git checkout master || git checkout -b master origin/master
           git reset --hard origin/master
@@ -32,6 +34,7 @@ jobs:
           echo "GF_SMTP_FROM_ADDRESS=${{ secrets.GF_SMTP_FROM_ADDRESS }}" >> .env
           echo "GF_SMTP_USER=${{ secrets.GF_SMTP_USER }}" >> .env
 
+          rm -f dbt/profiles.yml
           cp dbt/profiles.yml.example dbt/profiles.yml
 
           docker-compose down
