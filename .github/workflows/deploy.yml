@@ -23,14 +23,11 @@ jobs:
 
           cp .env.example .env
 
-          echo "GF_SMTP_PASSWORD=${{ secrets.GF_SMTP_PASSWORD }}" > .env
+          echo "GF_SMTP_PASSWORD=${{ secrets.GF_SMTP_PASSWORD }}" >> .env
           echo "GF_SMTP_FROM_ADDRESS=${{ secrets.GF_SMTP_FROM_ADDRESS }}" >> .env
           echo "GF_SMTP_USER=${{ secrets.GF_SMTP_USER }}" >> .env
 
-
-          # Chuẩn bị file profile cho dbt
           cp dbt/profiles.yml.example dbt/profiles.yml
 
-          # Tắt luồng cũ và khởi chạy luồng mới cùng việc rebuild image
           docker-compose down
           docker-compose up -d --build
