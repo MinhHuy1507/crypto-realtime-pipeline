@@ -31,6 +31,17 @@ jobs:
 
   dbt-compile:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: airflow
+          POSTGRES_PASSWORD: airflow
+          POSTGRES_DB: airflow
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,10 +51,10 @@ jobs:
         run: pip install dbt-core==1.8.2 dbt-postgres==1.8.2
       - name: dbt deps & compile (syntax check only)
         working-directory: dbt
-        env:
-          DBT_ALLOW_EXPERIMENTAL_ADAPTERS: "true"
         run: |
           cp profiles.yml.example profiles.yml
+          sed -i 's/host: postgres/host: localhost/g' profiles.yml
+          
           dbt deps
           dbt compile
 

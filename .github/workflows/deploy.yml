@@ -19,10 +19,11 @@ jobs:
         proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd ~/crypto-realtime-pipeline
-          git pull origin main
+          git pull origin master
 
           cp .env.example .env
 
+          echo -n >> .env
           echo "GF_SMTP_PASSWORD=${{ secrets.GF_SMTP_PASSWORD }}" >> .env
           echo "GF_SMTP_FROM_ADDRESS=${{ secrets.GF_SMTP_FROM_ADDRESS }}" >> .env
           echo "GF_SMTP_USER=${{ secrets.GF_SMTP_USER }}" >> .env
