@@ -169,6 +169,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ${AIRFLOW_PROJ_DIR:-.}/monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ${AIRFLOW_PROJ_DIR:-.}/monitoring/grafana/provisioning/dashboards:/var/lib/grafana/dashboards
+      - ${AIRFLOW_PROJ_DIR:-.}/monitoring/grafana/dashboards_json:/var/lib/grafana/dashboards_json
       - ${AIRFLOW_PROJ_DIR:-.}/monitoring/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting
     depends_on:
       - prometheus
