@@ -49,12 +49,17 @@ jobs:
           python-version: "3.10"
       - name: Install dbt
         run: pip install dbt-core==1.8.2 dbt-postgres==1.8.2
+        
       - name: dbt deps & compile (syntax check only)
         working-directory: dbt
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: airflow
+          POSTGRES_PASSWORD: airflow
+          POSTGRES_DB: airflow
         run: |
           cp profiles.yml.example profiles.yml
-          sed -i 's/host: postgres/host: localhost/g' profiles.yml
-          
           dbt deps
           dbt compile
 
