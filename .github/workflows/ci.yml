@@ -58,6 +58,7 @@ jobs:
           POSTGRES_USER: airflow
           POSTGRES_PASSWORD: airflow
           POSTGRES_DB: airflow
+          POSTGRES_SCHEMA: public
         run: |
           cp profiles.yml.example profiles.yml
           dbt deps
