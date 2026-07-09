@@ -49,7 +49,7 @@ RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements_airflow.txt
 
 # 7. Pre-install dbt packages at build time (so install_deps can be False at runtime)
-COPY --chown=airflow:airflow dbt /opt/airflow/dbt
+COPY --chown=airflow:root dbt /opt/airflow/dbt
 RUN dbt deps --project-dir /opt/airflow/dbt
 
 # 8. Setup PYTHONPATH
